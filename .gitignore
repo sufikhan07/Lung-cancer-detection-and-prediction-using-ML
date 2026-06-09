@@ -173,5 +173,9 @@ Thumbs.db
 *.backup
 
 # Docker
-.dockerignore</content>
-<parameter name="filePath">c:\Users\Anand Singh\OneDrive\Desktop\Major\.gitignore
+.dockerignore
+
+# Nested project datasets (large files)
+lung-cancer-ct-scan-detection-using-cnn/Data/
+lung-cancer-ct-scan-detection-using-cnn/lungcancerdataset/
+lung-cancer-ct-scan-detection-using-cnn/uploads/

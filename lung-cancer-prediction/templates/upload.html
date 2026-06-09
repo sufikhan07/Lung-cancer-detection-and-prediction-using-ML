@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CT Scan Upload - Lung Cancer Detection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f6f9ff 0%, #e9f0ff 100%);
+            min-height: 100vh;
+            padding: 24px;
+        }
+        .card {
+            max-width: 860px;
+            width: 100%;
+            margin: 0 auto;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(20,35,90,0.08);
+        }
+        .upload-area {
+            border: 2px dashed #e7eefc;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            border-color: #4f6ef7;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(79,110,247,0.1);
+            color: #4f6ef7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            margin: 0 auto 1rem;
+            font-size: 1.75rem;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg,#4f6ef7,#7bb1ff);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79,110,247,0.2);
+        }
+        .flash-messages {
+            max-width: 860px;
+            margin: 0 auto 1rem auto;
+        }
+        .alert {
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: none;
+        }
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="icon" type="image/x-icon" href="https://img.icons8.com/color-glass/48/lungs.png">
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="card p-4 my-4">
+        <h2 class="text-center mb-4">CT Scan Analysis</h2>
+        <p class="text-center text-muted mb-4">Upload your CT scan image for AI-powered lung cancer detection</p>
+
+        <form method="post" enctype="multipart/form-data" id="uploadForm">
+            <label for="ct_image" class="upload-area" id="dropZone">
+                <div class="upload-icon">
+                    <i class="bi bi-cloud-upload"></i>
+                </div>
+                <h5 class="mb-2">Drop your CT scan here</h5>
+                <p class="text-muted mb-0">or click to browse</p>
+                <input type="file" name="ct_image" id="ct_image" accept=".jpg,.jpeg,.png,.dcm" 
+                       class="d-none" required>
+                <img id="preview" class="preview-image">
+            </label>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
+                    <i class="bi bi-search me-2"></i>Analyze CT Scan
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-4 text-center">
+            <a href="/" class="text-decoration-none text-muted">
+                <i class="bi bi-arrow-left me-1"></i>Back to Home
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('ct_image');
+        const preview = document.getElementById('preview');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        // Highlight drop zone when dragging over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        // Handle dropped files
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function preventDefaults (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight(e) {
+            dropZone.classList.add('border-primary');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('border-primary');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+            handleFiles(files);
+        }
+
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.style.display = 'none';
+                }
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Health Assessment Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f6f9ff 0%, #e9f0ff 100%);
+            min-height: 100vh;
+            padding: 24px;
+        }
+        .card {
+            max-width: 860px;
+            width: 100%;
+            margin: 0 auto;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(20,35,90,0.08);
+        }
+        .form-label {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        .form-control, .form-select {
+            border: 1px solid #e7eefc;
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: all 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #4f6ef7;
+            box-shadow: 0 0 0 3px rgba(79,110,247,0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg,#4f6ef7,#7bb1ff);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79,110,247,0.2);
+        }
+        .range-info {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .section-title {
+            color: #2c3e50;
+            border-bottom: 2px solid #e7eefc;
+            padding-bottom: 0.5rem;
+            margin: 2rem 0 1.5rem;
+        }
+        .input-help {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+    </style>
+    <link rel="icon" type="image/x-icon" href="https://img.icons8.com/color-glass/48/lungs.png">
+    <style>
+        /* Flash messages styling */
+        .flash-messages {
+            max-width: 860px;
+            margin: 0 auto 1rem auto;
+        }
+        .alert {
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: none;
+        }
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <div class="card p-4 my-4">
+        <h2 class="text-center mb-4">Lung Cancer Risk Assessment</h2>
+        <div class="range-info">
+            <strong>Note:</strong> For the following questions, please rate on a scale from 1 (lowest) to 9 (highest)
+        </div>
+        
+        <form method="POST" action="{{ url_for('results') }}">
+            <input type="hidden" name="form_title" value="Health Assessment Form">
+
+            <!-- Basic Information -->
+            <h4 class="section-title">Personal Information</h4>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="age" class="form-label">Age</label>
+                    <input type="number" class="form-control" name="age" id="age" min="0" max="100" required value="30">
+                </div>
+                <div class="col-md-6">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select class="form-select" name="gender" id="gender" required>
+                        <option value="" disabled>Select gender</option>
+                        <option value="male" selected>Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Environmental Factors -->
+            <h4 class="section-title">Environmental Factors</h4>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="air_pollution" class="form-label">Air Pollution Exposure</label>
+                    <input type="number" class="form-control" name="air_pollution" id="air_pollution" min="1" max="9" required value="1">
+                    <div class="input-help">Rate your exposure to air pollution</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="dust_allergy" class="form-label">Dust Allergy</label>
+                    <input type="number" class="form-control" name="dust_allergy" id="dust_allergy" min="1" max="9" required value="1">
+                </div>
+                <div class="col-md-6">
+                    <label for="occupational_hazards" class="form-label">Occupational Hazards</label>
+                    <input type="number" class="form-control" name="occupational_hazards" id="occupational_hazards" min="1" max="9" required value="1">
+                    <div class="input-help">Rate exposure to harmful substances at work</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="genetic_risk" class="form-label">Genetic Risk</label>
+                    <input type="number" class="form-control" name="genetic_risk" id="genetic_risk" min="1" max="9" required value="1">
+                    <div class="input-help">Family history of lung cancer</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="chronic_lung_disease" class="form-label">Chronic Lung Disease</label>
+                    <input type="number" class="form-control" name="chronic_lung_disease" id="chronic_lung_disease" min="1" max="9" required value="1">
+                    <div class="input-help">Long-lasting damage to the lungs</div>
+                </div>
+            </div>
+
+            <!-- Lifestyle Factors -->
+            <h4 class="section-title">Lifestyle Factors</h4>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="smoking" class="form-label">Smoking</label>
+                    <input type="number" class="form-control" name="smoking" id="smoking" min="1" max="9" required value="1">
+                </div>
+                <div class="col-md-6">
+                    <label for="passive_smoker" class="form-label">Passive Smoking</label>
+                    <input type="number" class="form-control" name="passive_smoker" id="passive_smoker" min="1" max="9" required value="1">
+                </div>
+                <div class="col-md-6">
+                    <label for="alcohol_use" class="form-label">Alcohol Consumption</label>
+                    <input type="number" class="form-control" name="alcohol_use" id="alcohol_use" min="1" max="9" required value="1">
+                </div>
+                <div class="col-md-6">
+                    <label for="balanced_diet" class="form-label">Balanced Diet</label>
+                    <input type="number" class="form-control" name="balanced_diet" id="balanced_diet" min="1" max="9" required value="1">
+                </div>
+                <div class="col-md-6">
+                    <label for="obesity" class="form-label">Obesity</label>
+                    <input type="number" class="form-control" name="obesity" id="obesity" min="1" max="9" required value="1">
+                </div>
+            </div>
+
+            <!-- Health Conditions -->
+            <h4 class="section-title">Current Health Conditions</h4>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="chest_pain" class="form-label">Chest Pain</label>
+                    <input type="number" class="form-control" name="chest_pain" id="chest_pain" min="1" max="9" required value="1">
+                </div>
+                <div class="col-md-6">
+                    <label for="coughing_blood" class="form-label">Coughing of Blood</label>
+                    <input type="number" class="form-control" name="coughing_blood" id="coughing_blood" min="1" max="9" required value="1">
+                </div>
+                <div class="col-md-6">
+                    <label for="fatigue" class="form-label">Fatigue</label>
+                    <input type="number" class="form-control" name="fatigue" id="fatigue" min="1" max="9" required value="1">
+                </div>
+                <div class="col-md-6">
+                    <label for="weight_loss" class="form-label">Weight Loss</label>
+                    <input type="number" class="form-control" name="weight_loss" id="weight_loss" min="1" max="9" required value="1">
+                </div>
+                <div class="col-md-6">
+                    <label for="shortness_of_breath" class="form-label">Shortness of Breath</label>
+                    <input type="number" class="form-control" name="shortness_of_breath" id="shortness_of_breath" min="1" max="9" required value="1">
+                </div>
+                <div class="col-md-6">
+                    <label for="wheezing" class="form-label">Wheezing</label>
+                    <input type="number" class="form-control" name="wheezing" id="wheezing" min="1" max="9" required value="1">
+                    <div class="input-help">Whistling sound when breathing</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="swallowing_difficulty" class="form-label">Swallowing Difficulty</label>
+                    <input type="number" class="form-control" name="swallowing_difficulty" id="swallowing_difficulty" min="1" max="9" required value="1">
+                </div>
+                <div class="col-md-6">
+                    <label for="clubbing" class="form-label">Clubbing of Finger Nails</label>
+                    <input type="number" class="form-control" name="clubbing" id="clubbing" min="1" max="9" required value="1">
+                    <div class="input-help">Indicates low oxygen levels</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="frequent_cold" class="form-label">Frequent Cold</label>
+                    <input type="number" class="form-control" name="frequent_cold" id="frequent_cold" min="1" max="9" required value="1">
+                </div>
+                <div class="col-md-6">
+                    <label for="dry_cough" class="form-label">Dry Cough</label>
+                    <input type="number" class="form-control" name="dry_cough" id="dry_cough" min="1" max="9" required value="1">
+                </div>
+                <div class="col-md-6">
+                    <label for="snoring" class="form-label">Snoring</label>
+                    <input type="number" class="form-control" name="snoring" id="snoring" min="1" max="9" required value="1">
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <button type="submit" class="btn btn-primary btn-lg">Generate Assessment</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
