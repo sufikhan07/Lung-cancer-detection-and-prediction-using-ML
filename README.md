@@ -244,18 +244,12 @@ This system is designed to assist healthcare professionals and should not be use
 
 ## 👥 Team
 
-- **Project Lead**: [Your Name]
-- **ML Engineer**: [Team Member]
-- **Backend Developer**: [Team Member]
-- **Frontend Developer**: [Team Member]
-- **DevOps Engineer**: [Team Member]
+- **Project Lead**: Sufi Khan
+- **ML Engineer**: Sufi Khan
+- **Backend Developer**: Sufi Khan
+- **Frontend Developer**: Sufi Khan
 
-## 📞 Support
 
-For technical support or questions:
-- Email: support@lungcancerdiagnostic.com
-- Documentation: [docs](./docs/)
-- Issues: [GitHub Issues](https://github.com/your-repo/issues)
 
 ---
 
