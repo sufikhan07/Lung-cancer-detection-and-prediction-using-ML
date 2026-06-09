@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Assessment - Lung Cancer Detection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .form-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .form-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+            color: #1a237e;
+            font-size: 1.5rem;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #1a237e, #0d47a1);
+            border-radius: 2px;
+        }
+        .input-help {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+            transition: color 0.2s ease;
+        }
+        .form-group:hover .input-help {
+            color: #0d47a1;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        .form-control:focus {
+            border-color: #1a237e;
+            box-shadow: 0 0 0 0.2rem rgba(26,35,126,0.15);
+        }
+        .form-control:hover {
+            border-color: #90caf9;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #1a237e, #0d47a1) !important;
+            padding: 1.5rem;
+            border-bottom: none;
+        }
+        .card-header h4 {
+            color: white;
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13,71,161,0.3);
+        }
+        .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        .form-select:focus {
+            border-color: #1a237e;
+            box-shadow: 0 0 0 0.2rem rgba(26,35,126,0.15);
+        }
+        .form-select:hover {
+            border-color: #90caf9;
+        }
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            outline: none;
+        }
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #1a237e;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .range-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 10px rgba(26,35,126,0.3);
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-section {
+            animation: fadeIn 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Lung Cancer Detection System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/ct-scan">CT Scan Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/risk-assessment">Risk Assessment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/blood-report">Blood Report</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Lung Cancer Risk Assessment</h4>
+                    </div>
+                    <div class="card-body">
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-danger">{{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <form action="/risk-assessment" method="post">
+                            <!-- Personal Information -->
+                            <h4 class="section-title">Personal Information</h4>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="age" class="form-label">Age</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="range" class="form-range range-slider me-2" name="age" id="age" min="0" max="100" value="30" oninput="this.nextElementSibling.value = this.value">
+                                        <output class="badge bg-primary">30</output>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="gender" class="form-label">Gender</label>
+                                    <select class="form-select custom-select" name="gender" id="gender" required>
+                                        <option value="" disabled>Select gender</option>
+                                        <option value="male" selected>Male</option>
+                                        <option value="female">Female</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Environmental Factors -->
+                            <h4 class="section-title">Environmental Factors</h4>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="air_pollution" class="form-label">Air Pollution Exposure</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="range" class="form-range range-slider me-2" name="air_pollution" id="air_pollution" min="1" max="9" value="1" oninput="this.nextElementSibling.value = this.value">
+                                        <output class="badge bg-primary">1</output>
+                                    </div>
+                                    <div class="input-help">Rate your exposure to air pollution (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="dust_allergy" class="form-label">Dust Allergy</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="range" class="form-range range-slider me-2" name="dust_allergy" id="dust_allergy" min="1" max="9" value="1" oninput="this.nextElementSibling.value = this.value">
+                                        <output class="badge bg-primary">1</output>
+                                    </div>
+                                    <div class="input-help">Severity of dust allergies (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="occupational_hazards" class="form-label">Occupational Hazards</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="range" class="form-range range-slider me-2" name="occupational_hazards" id="occupational_hazards" min="1" max="9" value="1" oninput="this.nextElementSibling.value = this.value">
+                                        <output class="badge bg-primary">1</output>
+                                    </div>
+                                    <div class="input-help">Exposure to harmful substances at work (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="genetic_risk" class="form-label">Genetic Risk</label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="range" class="form-range range-slider me-2" name="genetic_risk" id="genetic_risk" min="1" max="9" value="1" oninput="this.nextElementSibling.value = this.value">
+                                        <output class="badge bg-primary">1</output>
+                                    </div>
+                                    <div class="input-help">Family history of lung cancer (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="chronic_lung_disease" class="form-label">Chronic Lung Disease</label>
+                                    <input type="number" class="form-control" name="chronic_lung_disease" id="chronic_lung_disease" min="1" max="9" required value="1">
+                                    <div class="input-help">Presence of long-lasting lung conditions (1-9)</div>
+                                </div>
+                            </div>
+
+                            <!-- Lifestyle Factors -->
+                            <h4 class="section-title">Lifestyle Factors</h4>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="smoking" class="form-label">Smoking</label>
+                                    <input type="number" class="form-control" name="smoking" id="smoking" min="1" max="9" required value="1">
+                                    <div class="input-help">Frequency and intensity of smoking (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="passive_smoker" class="form-label">Passive Smoking</label>
+                                    <input type="number" class="form-control" name="passive_smoker" id="passive_smoker" min="1" max="9" required value="1">
+                                    <div class="input-help">Exposure to secondhand smoke (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="alcohol_use" class="form-label">Alcohol Consumption</label>
+                                    <input type="number" class="form-control" name="alcohol_use" id="alcohol_use" min="1" max="9" required value="1">
+                                    <div class="input-help">Frequency and amount of alcohol consumption (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="balanced_diet" class="form-label">Balanced Diet</label>
+                                    <input type="number" class="form-control" name="balanced_diet" id="balanced_diet" min="1" max="9" required value="1">
+                                    <div class="input-help">Quality of diet and nutrition (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="obesity" class="form-label">Obesity</label>
+                                    <input type="number" class="form-control" name="obesity" id="obesity" min="1" max="9" required value="1">
+                                    <div class="input-help">Level of obesity or overweight (1-9)</div>
+                                </div>
+                            </div>
+
+                            <!-- Health Conditions -->
+                            <h4 class="section-title">Current Health Conditions</h4>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="chest_pain" class="form-label">Chest Pain</label>
+                                    <input type="number" class="form-control" name="chest_pain" id="chest_pain" min="1" max="9" required value="1">
+                                    <div class="input-help">Frequency and intensity of chest pain (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="coughing_blood" class="form-label">Coughing of Blood</label>
+                                    <input type="number" class="form-control" name="coughing_blood" id="coughing_blood" min="1" max="9" required value="1">
+                                    <div class="input-help">Frequency of coughing up blood (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="fatigue" class="form-label">Fatigue</label>
+                                    <input type="number" class="form-control" name="fatigue" id="fatigue" min="1" max="9" required value="1">
+                                    <div class="input-help">Level of tiredness and exhaustion (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="weight_loss" class="form-label">Weight Loss</label>
+                                    <input type="number" class="form-control" name="weight_loss" id="weight_loss" min="1" max="9" required value="1">
+                                    <div class="input-help">Unexplained weight loss (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="shortness_of_breath" class="form-label">Shortness of Breath</label>
+                                    <input type="number" class="form-control" name="shortness_of_breath" id="shortness_of_breath" min="1" max="9" required value="1">
+                                    <div class="input-help">Difficulty breathing or breathlessness (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="wheezing" class="form-label">Wheezing</label>
+                                    <input type="number" class="form-control" name="wheezing" id="wheezing" min="1" max="9" required value="1">
+                                    <div class="input-help">Whistling sound when breathing (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="swallowing_difficulty" class="form-label">Swallowing Difficulty</label>
+                                    <input type="number" class="form-control" name="swallowing_difficulty" id="swallowing_difficulty" min="1" max="9" required value="1">
+                                    <div class="input-help">Difficulty in swallowing food or liquids (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="clubbing" class="form-label">Clubbing of Finger Nails</label>
+                                    <input type="number" class="form-control" name="clubbing" id="clubbing" min="1" max="9" required value="1">
+                                    <div class="input-help">Changes in finger nails indicating low oxygen (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="frequent_cold" class="form-label">Frequent Cold</label>
+                                    <input type="number" class="form-control" name="frequent_cold" id="frequent_cold" min="1" max="9" required value="1">
+                                    <div class="input-help">Frequency of catching colds (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="dry_cough" class="form-label">Dry Cough</label>
+                                    <input type="number" class="form-control" name="dry_cough" id="dry_cough" min="1" max="9" required value="1">
+                                    <div class="input-help">Frequency and severity of dry cough (1-9)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="snoring" class="form-label">Snoring</label>
+                                    <input type="number" class="form-control" name="snoring" id="snoring" min="1" max="9" required value="1">
+                                    <div class="input-help">Frequency and intensity of snoring (1-9)</div>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">Submit Assessment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to initialize all range sliders
+        function initializeRangeSliders() {
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                // Create tooltip element
+                const tooltip = document.createElement('div');
+                tooltip.className = 'range-tooltip';
+                tooltip.style.position = 'absolute';
+                tooltip.style.backgroundColor = '#1a237e';
+                tooltip.style.color = 'white';
+                tooltip.style.padding = '4px 8px';
+                tooltip.style.borderRadius = '4px';
+                tooltip.style.fontSize = '12px';
+                tooltip.style.pointerEvents = 'none';
+                tooltip.style.opacity = '0';
+                tooltip.style.transition = 'opacity 0.2s ease';
+                document.body.appendChild(tooltip);
+
+                // Update tooltip position on slider interaction
+                function updateTooltip(e) {
+                    const rect = slider.getBoundingClientRect();
+                    const val = slider.value;
+                    const pos = ((val - slider.min) / (slider.max - slider.min)) * slider.offsetWidth;
+                    tooltip.style.left = rect.left + pos + 'px';
+                    tooltip.style.top = (rect.top - 30) + 'px';
+                    tooltip.textContent = val;
+                    tooltip.style.opacity = '1';
+                }
+
+                slider.addEventListener('input', updateTooltip);
+                slider.addEventListener('mouseover', updateTooltip);
+                slider.addEventListener('mouseout', () => tooltip.style.opacity = '0');
+            });
+        }
+
+        // Function to highlight related fields
+        function initializeFieldHighlighting() {
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach(section => {
+                const inputs = section.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    input.addEventListener('focus', () => {
+                        section.style.backgroundColor = '#f8f9fa';
+                    });
+                    input.addEventListener('blur', () => {
+                        section.style.backgroundColor = 'white';
+                    });
+                });
+            });
+        }
+
+        // Initialize when document is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeRangeSliders();
+            initializeFieldHighlighting();
+
+            // Add smooth scrolling to sections
+            document.querySelectorAll('.section-title').forEach(title => {
+                title.addEventListener('click', () => {
+                    title.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

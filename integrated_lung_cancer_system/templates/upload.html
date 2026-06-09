@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CT Scan Upload - Lung Cancer Detection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #0056b3;
+            background-color: #f8f9fa;
+        }
+        #preview {
+            max-width: 300px;
+            margin-top: 20px;
+        }
+        .action-buttons {
+            margin-top: 30px;
+        }
+        .action-buttons .btn {
+            margin: 5px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .action-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .result-content, .result-content * {
+                visibility: visible;
+            }
+            .result-content {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+            .action-buttons {
+                display: none;
+            }
+            @page {
+                size: A4;
+                margin: 2cm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Lung Cancer Detection System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/ct-scan">CT Scan Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/blood-report">Blood Report</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">CT Scan Analysis</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> Important Guidelines for Upload</h6>
+                            <ul class="mb-0">
+                                <li><strong>Chest CT Scans Only:</strong> Please upload only chest CT scan images that clearly show the lung area</li>
+                                <li><strong>Image Types to Avoid:</strong> Shoulder x-rays, abdominal scans, head CTs, or other non-chest images</li>
+                                <li><strong>Image Quality:</strong> Ensure the image is clear and not heavily compressed</li>
+                                <li><strong>Medical Disclaimer:</strong> This is an AI-assisted tool and not a substitute for professional medical diagnosis</li>
+                            </ul>
+                        </div>
+
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-danger">{{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <form action="/ct-scan" method="post" enctype="multipart/form-data">
+                            <div class="upload-area" onclick="document.getElementById('file').click();">
+                                <img src="https://cdn-icons-png.flaticon.com/512/685/685655.png" alt="upload" width="64">
+                                <h5 class="mt-3">Click or Drag CT Scan Image Here</h5>
+                                <p class="text-muted">Supported formats: PNG, JPG, JPEG</p>
+                                <input type="file" id="file" name="file" class="d-none" accept=".png,.jpg,.jpeg" onchange="previewImage(this)">
+                            </div>
+                            <img id="preview" class="mx-auto d-none">
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">Analyze CT Scan</button>
+                            </div>
+                        </form>
+                        
+                        {% if result %}
+                        <div class="result-content mt-4">
+                            <div class="text-center">
+                                <h4 class="mb-3">Analysis Results</h4>
+                                <div class="result-image mb-3">
+                                    <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Analyzed CT Scan" class="img-fluid rounded">
+                                </div>
+                                <div class="result-text">
+                                    <h5>Detection Result: {{ result }}</h5>
+                                    <p class="mb-4">Confidence: {{ confidence }}%</p>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center action-buttons">
+                                <button onclick="window.print()" class="btn btn-outline-primary">
+                                    <i class="fas fa-print"></i> Print Report
+                                </button>
+                                <a href="/" class="btn btn-primary">
+                                    <i class="fas fa-home"></i> New Analysis
+                                </a>
+                                <a href="https://www.google.com/maps/search/lung+cancer+doctors/" class="btn btn-outline-primary" target="_blank">
+                                    <i class="fas fa-hospital"></i> Find a Doctor
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var preview = document.getElementById('preview');
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Drag and drop functionality
+        const uploadArea = document.querySelector('.upload-area');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#0056b3';
+            uploadArea.style.backgroundColor = '#f8f9fa';
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = 'transparent';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = 'transparent';
+            
+            const file = e.dataTransfer.files[0];
+            const input = document.getElementById('file');
+            input.files = e.dataTransfer.files;
+            if (file) {
+                previewImage(input);
+            }
+        });
+    </script>
+</body>
+</html>

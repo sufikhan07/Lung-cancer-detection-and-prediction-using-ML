@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrated Lung Cancer Detection System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #1a237e, #0d47a1) !important;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.4rem;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://www.cancer.gov/sites/g/files/xnrzdm211/files/styles/cgov_social_media/public/cgov_image/media_image/100/000/100715.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            padding: 150px 0;
+            margin-bottom: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(26,35,126,0.7), rgba(13,71,161,0.7));
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero .lead {
+            font-size: 1.4rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .feature-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+            background: white;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            color: white;
+            font-weight: 600;
+            padding: 1.5rem;
+            font-size: 1.2rem;
+            border: none;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .card-title {
+            color: #1a237e;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .card-text {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13,71,161,0.3);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #1a237e;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats-container {
+            background: white;
+            padding: 40px 0;
+            margin: 60px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            border-right: 1px solid #eee;
+        }
+
+        .stat-item:last-child {
+            border-right: none;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a237e;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .feature-card .card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -50px auto 20px;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px rgba(13,71,161,0.3);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Smart Health : Lung Cancer Detection System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/ct-scan">CT Scan Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/blood-report">Blood Report</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="container text-center hero-content">
+            <h1 class="mb-4">Comprehensive Lung Cancer Detection</h1>
+            <p class="lead mb-4">Advanced AI-powered analysis combining CT scan processing and blood biomarker evaluation for early detection and better diagnosis</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/ct-scan" class="btn btn-primary btn-lg">
+                    <i class="fas fa-x-ray me-2"></i>Start CT Scan Analysis
+                </a>
+                <a href="/blood-report" class="btn btn-primary btn-lg">
+                    <i class="fas fa-vial me-2"></i>Start Blood Analysis
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats-container rounded-3">
+            <div class="row">
+                <div class="col-md-4 stat-item">
+                    <div class="stat-number">98%</div>
+                    <div class="stat-label">Detection Accuracy</div>
+                </div>
+                <div class="col-md-4 stat-item">
+                    <div class="stat-number">1000+</div>
+                    <div class="stat-label">Scans Analyzed</div>
+                </div>
+                <div class="col-md-4 stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Analysis Available</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card feature-card">
+                    <div class="card-icon">
+                        <i class="fas fa-x-ray"></i>
+                    </div>
+                    <div class="card-header">CT Scan Analysis</div>
+                    <div class="card-body">
+                        <h5 class="card-title">Advanced CT Scan Processing</h5>
+                        <p class="card-text">
+                            <i class="fas fa-check-circle text-success me-2"></i>Upload CT scan images for instant analysis<br>
+                            <i class="fas fa-check-circle text-success me-2"></i>AI-powered cancer detection using CNN<br>
+                            <i class="fas fa-check-circle text-success me-2"></i>High accuracy and quick results<br>
+                            <i class="fas fa-check-circle text-success me-2"></i>Detailed visualization of findings
+                        </p>
+                        <a href="/ct-scan" class="btn btn-primary">
+                            <i class="fas fa-play me-2"></i>Start CT Scan Analysis
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card feature-card">
+                    <div class="card-icon">
+                        <i class="fas fa-vial"></i>
+                    </div>
+                    <div class="card-header">Blood Report Analysis</div>
+                    <div class="card-body">
+                        <h5 class="card-title">Biomarker Evaluation</h5>
+                        <p class="card-text">
+                            <i class="fas fa-check-circle text-success me-2"></i>Analyze CEA, CYFRA 21-1, NSE levels<br>
+                            <i class="fas fa-check-circle text-success me-2"></i>Threshold-based risk assessment<br>
+                            <i class="fas fa-check-circle text-success me-2"></i>Quick blood test evaluation<br>
+                            <i class="fas fa-check-circle text-success me-2"></i>Integrated with other diagnostics
+                        </p>
+                        <a href="/blood-report" class="btn btn-primary">
+                            <i class="fas fa-play me-2"></i>Start Blood Analysis
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chatbot Widget -->
+    <div id="chatbot-widget" style="position: fixed; bottom: 20px; right: 20px; width: 380px; height: 550px; background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); display: none; z-index: 1000; flex-direction: column; border: 1px solid rgba(0,0,0,0.08); overflow: hidden;">
+        <div id="chatbot-header" style="background: linear-gradient(135deg, #1a237e, #0d47a1); color: white; padding: 18px 20px; border-radius: 20px 20px 0 0; cursor: pointer; position: relative;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center;">
+                    <div style="width: 12px; height: 12px; background: #4caf50; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);"></div>
+                    <span style="font-weight: 600; font-size: 16px;">Lung Health Assistant</span>
+                </div>
+                <button id="chatbot-close" style="background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s;">&times;</button>
+            </div>
+            <div style="font-size: 12px; opacity: 0.9; margin-top: 4px;">AI-powered lung cancer screening & guidance</div>
+        </div>
+        <div id="chatbot-messages" style="flex: 1; padding: 20px; overflow-y: auto; background: #fafbfc; scroll-behavior: smooth; max-height: calc(100% - 140px);">
+            <!-- Messages will be added here -->
+        </div>
+        <div id="chatbot-input" style="padding: 20px; border-top: 1px solid #e1e5e9; background: white; border-radius: 0 0 20px 20px;">
+            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                <div style="flex: 1; position: relative;">
+                    <textarea 
+                        id="chat-input" 
+                        placeholder="Ask about lung health, risk assessment, or how to use our tools..." 
+                        style="width: 100%; min-height: 44px; max-height: 120px; padding: 12px 16px; border: 2px solid #e1e5e9; border-radius: 22px; resize: none; font-family: inherit; font-size: 14px; line-height: 1.4; outline: none; transition: border-color 0.2s, box-shadow 0.2s;"
+                        onkeydown="handleKeyPress(event)"
+                    ></textarea>
+                    <div id="input-hint" style="position: absolute; bottom: -20px; left: 16px; font-size: 11px; color: #6c757d; opacity: 0; transition: opacity 0.2s;">Try "start risk", "ct scan", or "help"</div>
+                </div>
+                <button id="chat-send" style="width: 44px; height: 44px; background: linear-gradient(135deg, #1a237e, #0d47a1); color: white; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s, box-shadow 0.2s; flex-shrink: 0;">
+                    <i class="fas fa-paper-plane" style="font-size: 16px;"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="chatbot-toggle" style="position: fixed; bottom: 20px; right: 20px; width: 70px; height: 70px; background: linear-gradient(135deg, #1a237e, #0d47a1); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.15); z-index: 1000; transition: transform 0.2s, box-shadow 0.2s; border: 3px solid white;">
+        <div style="position: relative;">
+            <i class="fas fa-comments" style="color: white; font-size: 28px;"></i>
+            <div id="notification-badge" style="position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; background: #ff4444; color: white; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border: 2px solid white;">!</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('chatbot-toggle');
+            const widget = document.getElementById('chatbot-widget');
+            const close = document.getElementById('chatbot-close');
+            const send = document.getElementById('chat-send');
+            const input = document.getElementById('chat-input');
+            const messages = document.getElementById('chatbot-messages');
+            const inputHint = document.getElementById('input-hint');
+            const notificationBadge = document.getElementById('notification-badge');
+            
+            let isTyping = false;
+            let messageCount = 0;
+
+            // Enhanced toggle functionality
+            toggle.addEventListener('click', function() {
+                widget.style.display = widget.style.display === 'none' ? 'flex' : 'none';
+                toggle.style.display = widget.style.display === 'none' ? 'flex' : 'none';
+                
+                // Show welcome message when opening for the first time
+                if (widget.style.display === 'flex' && messages.children.length === 0) {
+                    setTimeout(() => {
+                        addMessage("👋 **Welcome to Lung Health Assistant!**\n\nI'm your AI-powered guide for lung cancer screening and prevention. I can help you:\n\n🔍 **Analyze CT scans** - Step-by-step guidance\n🩸 **Understand blood tests** - Biomarker explanations\n📋 **Risk assessment** - Comprehensive evaluation\n💡 **Learn prevention** - Lifestyle tips & strategies\n🚨 **Emergency guidance** - When to seek immediate care\n\n**Quick start:** Try asking me about 'risk assessment', 'CT scan', or 'symptoms'!\n\nWhat would you like to explore today?", false);
+                    }, 300);
+                }
+                
+                // Hide notification badge when opened
+                if (widget.style.display === 'flex') {
+                    notificationBadge.style.display = 'none';
+                }
+            });
+
+            // Enhanced close functionality
+            close.addEventListener('click', function() {
+                widget.style.display = 'none';
+                toggle.style.display = 'flex';
+            });
+
+            // Enhanced message display with better formatting
+            function addMessage(text, isUser = false, isTyping = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.style.marginBottom = '16px';
+                messageDiv.style.maxWidth = '85%';
+                
+                if (isUser) {
+                    messageDiv.style.marginLeft = 'auto';
+                    messageDiv.style.textAlign = 'right';
+                    messageDiv.innerHTML = `
+                        <div style="display: inline-block; background: linear-gradient(135deg, #1a237e, #0d47a1); color: white; padding: 12px 16px; border-radius: 18px 18px 4px 18px; box-shadow: 0 2px 8px rgba(26, 35, 126, 0.15); font-size: 14px; line-height: 1.4; word-wrap: break-word;">
+                            ${text}
+                        </div>
+                    `;
+                } else {
+                    messageDiv.innerHTML = `
+                        <div style="display: flex; align-items: flex-start; gap: 8px;">
+                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #1a237e, #0d47a1); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(26, 35, 126, 0.2);">
+                                <i class="fas fa-user-md" style="color: white; font-size: 14px;"></i>
+                            </div>
+                            <div style="background: white; padding: 12px 16px; border-radius: 18px 18px 18px 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e1e5e9; font-size: 14px; line-height: 1.5; word-wrap: break-word; flex: 1;">
+                                ${formatMessage(text)}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (isTyping) {
+                    messageDiv.id = 'typing-indicator';
+                    messageDiv.innerHTML = `
+                        <div style="display: flex; align-items: flex-start; gap: 8px;">
+                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #1a237e, #0d47a1); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(26, 35, 126, 0.2);">
+                                <i class="fas fa-user-md" style="color: white; font-size: 14px;"></i>
+                            </div>
+                            <div style="background: white; padding: 12px 16px; border-radius: 18px 18px 18px 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e1e5e9;">
+                                <div style="display: flex; gap: 4px; align-items: center;">
+                                    <div class="typing-dot" style="width: 6px; height: 6px; background: #1a237e; border-radius: 50%; animation: typing 1.4s infinite;"></div>
+                                    <div class="typing-dot" style="width: 6px; height: 6px; background: #1a237e; border-radius: 50%; animation: typing 1.4s infinite 0.2s;"></div>
+                                    <div class="typing-dot" style="width: 6px; height: 6px; background: #1a237e; border-radius: 50%; animation: typing 1.4s infinite 0.4s;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                messages.appendChild(messageDiv);
+                messages.scrollTop = messages.scrollHeight;
+                messageCount++;
+                
+                return messageDiv;
+            }
+
+            // Enhanced message formatting
+            function formatMessage(text) {
+                let formatted = text;
+                
+                // Bold text
+                formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #1a237e;">$1</strong>');
+                
+                // Emojis with colors
+                const emojiColors = {
+                    '⚠️': '#ff6b35',
+                    '✅': '#4caf50',
+                    '🔍': '#2196f3',
+                    '🩸': '#f44336',
+                    '📋': '#ff9800',
+                    '💡': '#9c27b0',
+                    '💬': '#00bcd4',
+                    '🏥': '#e91e63',
+                    '🚨': '#ff4444',
+                    '👋': '#4caf50',
+                    '🎯': '#ff9800',
+                    '📊': '#2196f3',
+                    '🧬': '#9c27b0'
+                };
+                
+                Object.keys(emojiColors).forEach(emoji => {
+                    formatted = formatted.replace(new RegExp(emoji, 'g'), `<span style="color: ${emojiColors[emoji]}; font-size: 16px;">${emoji}</span>`);
+                });
+                
+                // Line breaks
+                formatted = formatted.replace(/\n/g, '<br>');
+                
+                return formatted;
+            }
+
+            // Enhanced send functionality
+            send.addEventListener('click', function() {
+                const text = input.value.trim();
+                if (text && !isTyping) {
+                    sendMessage(text);
+                }
+            });
+
+            // Enhanced input handling
+            function handleKeyPress(event) {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    const text = input.value.trim();
+                    if (text && !isTyping) {
+                        sendMessage(text);
+                    }
+                }
+                
+                // Show/hide hint based on input
+                setTimeout(() => {
+                    if (input.value.length > 0) {
+                        inputHint.style.opacity = '0';
+                    } else {
+                        inputHint.style.opacity = '1';
+                    }
+                }, 100);
+            }
+
+            // Extract handleKeyPress function for textarea
+            window.handleKeyPress = handleKeyPress;
+
+            // Send message function
+            function sendMessage(text) {
+                addMessage(text, true);
+                input.value = '';
+                input.style.height = '44px';
+                
+                // Show typing indicator
+                isTyping = true;
+                const typingIndicator = addMessage('', false, true);
+                
+                // Simulate typing delay
+                setTimeout(() => {
+                    fetch('/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message: text }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Remove typing indicator
+                        if (typingIndicator) {
+                            typingIndicator.remove();
+                        }
+                        isTyping = false;
+                        
+                        // Add bot response
+                        addMessage(data.response, false);
+                        
+                        // Show notification if chat is closed
+                        if (widget.style.display === 'none') {
+                            notificationBadge.style.display = 'flex';
+                            notificationBadge.textContent = '!';
+                        }
+                    })
+                    .catch(error => {
+                        if (typingIndicator) {
+                            typingIndicator.remove();
+                        }
+                        isTyping = false;
+                        addMessage('Sorry, I\'m having trouble responding right now. Please try again later.', false);
+                    });
+                }, 500 + Math.random() * 1000); // Random delay between 500-1500ms
+            }
+
+            // Auto-resize textarea
+            input.addEventListener('input', function() {
+                this.style.height = '44px';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+
+            // Enhanced hover effects
+            send.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+                this.style.boxShadow = '0 4px 12px rgba(26, 35, 126, 0.3)';
+            });
+            
+            send.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = 'none';
+            });
+
+            toggle.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+                this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.2)';
+            });
+            
+            toggle.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)';
+            });
+
+            // Add CSS animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes typing {
+                    0%, 60%, 100% { transform: translateY(0); }
+                    30% { transform: translateY(-10px); }
+                }
+                
+                .typing-dot {
+                    animation: typing 1.4s infinite;
+                }
+                
+                .typing-dot:nth-child(2) {
+                    animation-delay: 0.2s;
+                }
+                
+                .typing-dot:nth-child(3) {
+                    animation-delay: 0.4s;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>

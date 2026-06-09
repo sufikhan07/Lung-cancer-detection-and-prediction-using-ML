@@ -1,0 +1,217 @@
+name: Lung Cancer Diagnostic System CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Code Quality Checks
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install flake8 black isort mypy pytest pytest-cov
+
+    - name: Lint with flake8
+      run: |
+        flake8 src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 src/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Check code formatting with black
+      run: black --check --diff src/ tests/
+
+    - name: Check import sorting with isort
+      run: isort --check-only --diff src/ tests/
+
+    - name: Type check with mypy
+      run: mypy src/ --ignore-missing-imports
+
+  # Unit Tests
+  test:
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+
+    - name: Run unit tests
+      run: |
+        pytest tests/unit/ -v --cov=src --cov-report=xml --cov-report=html
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  # Integration Tests
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+
+    - name: Run integration tests
+      run: |
+        pytest tests/integration/ -v --cov=src --cov-report=xml --cov-append
+
+  # Docker Build and Test
+  docker:
+    runs-on: ubuntu-latest
+    needs: integration-test
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: false
+        tags: lung-cancer-system:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Test Docker image
+      run: |
+        docker run --rm lung-cancer-system:test python -c "import sys; print('Python version:', sys.version)"
+
+  # Security Scan
+  security:
+    runs-on: ubuntu-latest
+    needs: docker
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codecov-action@v3
+      if: always()
+      with:
+        file: trivy-results.sarif
+
+  # Deploy to Staging (only on main branch)
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [quality, test, integration-test, docker, security]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: staging
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Deploy to ECS
+      run: |
+        # Update ECS service
+        aws ecs update-service \
+          --cluster lung-cancer-staging \
+          --service lung-cancer-app \
+          --force-new-deployment
+
+    - name: Run smoke tests
+      run: |
+        # Wait for deployment and run basic health checks
+        sleep 60
+        curl -f https://staging.lung-cancer-system.com/health || exit 1
+
+  # Deploy to Production (manual trigger)
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    environment: production
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Deploy to production ECS
+      run: |
+        aws ecs update-service \
+          --cluster lung-cancer-production \
+          --service lung-cancer-app \
+          --force-new-deployment
+
+    - name: Run production smoke tests
+      run: |
+        sleep 120
+        curl -f https://lung-cancer-system.com/health || exit 1</content>
+<parameter name="filePath">c:\Users\Anand Singh\OneDrive\Desktop\Major\.github\workflows\ci-cd.yml

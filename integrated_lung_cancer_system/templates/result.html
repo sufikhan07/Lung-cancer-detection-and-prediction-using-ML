@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Lung Cancer Detection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .result-card {
+            max-width: 800px;
+            margin: 40px auto;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .result-header {
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            color: white;
+            padding: 25px;
+            position: relative;
+        }
+        .result-header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(135deg, rgba(26,35,126,0.2), rgba(13,71,161,0.2));
+        }
+        .probability-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .probability-bar {
+            height: 35px;
+            border-radius: 17.5px;
+            background-color: #e9ecef;
+            overflow: hidden;
+            margin: 15px 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .probability-fill {
+            height: 100%;
+            background: linear-gradient(90deg, 
+                #00c853,  /* Low risk */
+                #ffd600,  /* Medium risk */
+                #d50000   /* High risk */
+            );
+            width: {% if probability > 70 %}{{ probability }}{% elif probability > 30 %}{{ probability }}{% else %}{{ 100 - probability }}{% endif %}%;
+            transition: width 1.5s ease-in-out, background-color 1.5s ease-in-out;
+            position: relative;
+        }
+        .probability-fill::after {
+            content: '{% if probability > 70 %}{{ "%.1f"|format(probability) }}% Risk{% elif probability > 30 %}{{ "%.1f"|format(probability) }}% Risk{% else %}{{ "%.1f"|format(100 - probability) }}% Safe{% endif %}';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .result-image {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .recommendation-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .recommendation-header {
+            font-size: 1.5rem;
+            color: #1a237e;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e3f2fd;
+            padding-bottom: 10px;
+        }
+        .risk-level {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .risk-low {
+            color: #00c853;
+            background-color: #e8f5e9;
+        }
+        .risk-medium {
+            color: #ff6f00;
+            background-color: #fff3e0;
+        }
+        .risk-high {
+            color: #d50000;
+            background-color: #ffebee;
+        }
+        .action-buttons {
+            margin-top: 30px;
+        }
+        .action-buttons .btn {
+            margin: 5px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .action-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Lung Cancer Detection System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/ct-scan">CT Scan Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/blood-report">Blood Report</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="card result-card">
+            <div class="result-header text-center">
+                <h2 class="mb-0">Analysis Results</h2>
+            </div>
+            <div class="card-body">
+                <div class="probability-container">
+                    <div class="text-center">
+                        <div class="risk-level 
+                            {% if result == 'Cancerous' %}risk-high{% else %}risk-low{% endif %}">
+                            {{ result }}
+                            <div class="confidence-note text-muted" style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                ({{ "%.1f"|format(probability) }}% confidence)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="probability-bar">
+                        <div class="probability-fill"></div>
+                    </div>
+                </div>
+
+                {% if image_path %}
+                <div class="text-center">
+                    <h4 class="text-primary mb-3">Analyzed CT Scan Image</h4>
+                    <img src="{{ image_path }}" alt="CT Scan" class="result-image">
+                </div>
+                {% endif %}
+
+                <div class="recommendation-card">
+                    <h4 class="recommendation-header">Medical Recommendation</h4>
+                    <div class="recommendation-content">
+                        {# CT scan specific recommendations #}
+                        {% if is_ct_scan %}
+                            {% if result == 'Cancerous' %}
+                            <div class="alert alert-danger">
+                                <h5 class="alert-heading mb-3">Potential Cancer Indicators Detected</h5>
+                                <p class="mb-2">The CT scan shows findings that may indicate lung cancer. Recommended next steps:</p>
+                                <ul class="mb-3">
+                                    <li>Arrange an urgent consultation with a pulmonologist or oncologist (specialist review)</li>
+                                    <li>Bring or print this report and the original CT images to your appointment</li>
+                                    <li>Discuss confirmatory diagnostics: tissue biopsy (CT-guided or bronchoscopic), PET-CT, and targeted imaging</li>
+                                    <li>Consider multidisciplinary evaluation (tumor board) for treatment planning</li>
+                                    <li>If you smoke, seek immediate smoking cessation support — this improves outcomes</li>
+                                    <li>If you experience severe symptoms (heavy coughing with blood, sudden severe shortness of breath, chest pain), seek emergency care</li>
+                                </ul>
+                                <p class="mb-1"><strong>Model confidence:</strong> {{ "%.1f"|format(probability) }}% (AI-assisted result)</p>
+                                <p class="mb-0"><strong>Note:</strong> This is an AI-assisted analysis and not a definitive diagnosis. A specialist review and confirmatory tests are required.</p>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-success">
+                                <h5 class="alert-heading mb-3">No Clear Cancer Indicators Detected</h5>
+                                <p class="mb-2">The CT scan did not show clear signs of lung cancer. Recommended actions:</p>
+                                <ul class="mb-3">
+                                    <li>Consider specialist radiology review for confirmation if you have concerning symptoms</li>
+                                    <li>Routine follow-up imaging (e.g., repeat CT or chest X‑ray) in 3–6 months as advised by your clinician</li>
+                                    <li>Monitor symptoms and return sooner if you notice worsening or new symptoms</li>
+                                    <li>Continue preventive measures and healthy lifestyle (smoking cessation, exercise, balanced diet)</li>
+                                </ul>
+                                <p class="mb-1"><strong>Model confidence:</strong> {{ "%.1f"|format(probability) }}% (AI-assisted result)</p>
+                                <p class="mb-0"><strong>Note:</strong> If you remain concerned, ask your doctor for a second opinion or specialist referral.</p>
+                            </div>
+                            {% endif %}
+
+                        {# Blood report recommendations #}
+                        {% elif is_blood %}
+                            {% if result == 'High Risk' %}
+                            <div class="alert alert-danger">
+                                <h5 class="alert-heading mb-3">Elevated Biomarker Levels Detected</h5>
+                                <p class="mb-2">Your blood test shows elevated levels of lung cancer biomarkers. Recommended next steps:</p>
+                                <ul class="mb-3">
+                                    <li>Schedule an urgent consultation with your healthcare provider</li>
+                                    <li>Discuss the need for further diagnostic tests (CT scan, PET-CT, biopsy)</li>
+                                    <li>Bring your lab results and this report to your appointment</li>
+                                    <li>Consider specialist referral to oncology or pulmonology</li>
+                                </ul>
+                                <p class="mb-1"><strong>Biomarker values:</strong> CEA: {{ cea }} ng/mL, CYFRA 21-1: {{ cyfra }} ng/mL, NSE: {{ nse }} ng/mL</p>
+                                <p class="mb-0"><strong>Note:</strong> Elevated biomarkers can have various causes. Clinical correlation is essential.</p>
+                            </div>
+                            {% elif result == 'Moderate Risk' %}
+                            <div class="alert alert-warning">
+                                <h5 class="alert-heading mb-3">Moderately Elevated Biomarker Levels</h5>
+                                <p class="mb-2">Your blood test shows some elevated biomarker levels. Recommended actions:</p>
+                                <ul class="mb-3">
+                                    <li>Discuss results with your healthcare provider</li>
+                                    <li>Monitor symptoms and consider follow-up testing</li>
+                                    <li>Consider lifestyle modifications and regular check-ups</li>
+                                </ul>
+                                <p class="mb-1"><strong>Biomarker values:</strong> CEA: {{ cea }} ng/mL, CYFRA 21-1: {{ cyfra }} ng/mL, NSE: {{ nse }} ng/mL</p>
+                                <p class="mb-0">If symptoms worsen, seek medical attention.</p>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-success">
+                                <h5 class="alert-heading mb-3">Normal Biomarker Levels</h5>
+                                <p class="mb-2">Your blood test shows normal levels of lung cancer biomarkers.</p>
+                                <ul class="mb-3">
+                                    <li>Continue routine preventive care and healthy habits</li>
+                                    <li>Report any new or worsening respiratory symptoms to your healthcare provider</li>
+                                </ul>
+                                <p class="mb-1"><strong>Biomarker values:</strong> CEA: {{ cea }} ng/mL, CYFRA 21-1: {{ cyfra }} ng/mL, NSE: {{ nse }} ng/mL</p>
+                                <p class="mb-0">If you have persistent concerns, consider discussing with your doctor.</p>
+                            </div>
+                            {% endif %}
+
+                        {# Risk assessment (non-CT) recommendations - keep prior thresholds but clearer wording #}
+                        {% else %}
+                            {% if probability > 70 %}
+                            <div class="alert alert-danger">
+                                <h5 class="alert-heading mb-3">High Risk Level Detected</h5>
+                                <p class="mb-2">Based on your assessment data, your estimated risk is elevated. Recommended actions:</p>
+                                <ul class="mb-3">
+                                    <li>Schedule a prompt appointment with your primary care physician or a pulmonologist</li>
+                                    <li>Bring your assessment summary to the consultation and discuss further diagnostic testing</li>
+                                    <li>Ask about imaging (chest X‑ray or CT) and specialist referral if clinically indicated</li>
+                                    <li>Follow recommended lifestyle changes and any prescribed treatments</li>
+                                </ul>
+                                <p class="mb-0"><strong>Note:</strong> This tool is an aid and cannot replace clinical judgment.</p>
+                            </div>
+                            {% elif probability > 30 %}
+                            <div class="alert alert-warning">
+                                <h5 class="alert-heading mb-3">Moderate Risk Level Detected</h5>
+                                <p class="mb-2">Your assessment shows a moderate level of risk. Recommended actions:</p>
+                                <ul class="mb-3">
+                                    <li>Discuss results with your healthcare provider to decide if further testing is needed</li>
+                                    <li>Monitor symptoms and document any changes</li>
+                                    <li>Consider lifestyle modifications to reduce risk (quit smoking, avoid pollutants, healthy diet)</li>
+                                </ul>
+                                <p class="mb-0">If symptoms worsen, seek medical attention.</p>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-success">
+                                <h5 class="alert-heading mb-3">Low Risk Level</h5>
+                                <p class="mb-2">Your assessment indicates a low estimated risk.</p>
+                                <ul class="mb-3">
+                                    <li>Continue routine preventive care and healthy habits</li>
+                                    <li>Report any new or worsening respiratory symptoms to your healthcare provider</li>
+                                </ul>
+                                <p class="mb-0">If you have persistent concerns, consider discussing with your doctor.</p>
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="text-center action-buttons">
+                    <a href="/" class="btn btn-primary me-2">
+                        <i class="fas fa-home"></i> Return to Home
+                    </a>
+                    <a href="/ct-scan" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-x-ray"></i> New CT Scan Analysis
+                    </a>
+                    <a href="/blood-report" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-vial"></i> New Blood Report
+                    </a>
+                    <button onclick="window.print()" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-print"></i> Print Report
+                    </button>
+                    <a href="https://www.google.com/maps/search/lung+cancer+doctors/" class="btn btn-outline-primary" target="_blank">
+                        <i class="fas fa-hospital"></i> Find a Doctor
+                    </a>
+                </div>
+                
+                <!-- Print-specific styles -->
+                <style media="print">
+                    body * {
+                        visibility: hidden;
+                    }
+                    .result-card, .result-card * {
+                        visibility: visible;
+                    }
+                    .result-card {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                    }
+                    .action-buttons {
+                        display: none;
+                    }
+                    @page {
+                        size: A4;
+                        margin: 2cm;
+                    }
+                </style>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
