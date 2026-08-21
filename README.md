@@ -254,4 +254,4 @@ This system is designed to assist healthcare professionals and should not be use
 ---
 
 **Built with ❤️ for advancing medical diagnostics through AI**</content>
-<parameter name="filePath">c:\Users\Anand Singh\OneDrive\Desktop\Major\README.md
+
