@@ -11,7 +11,8 @@ import time
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key_here'  # Required for flash messages
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'development-only-change-me')
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 
 # Base directory for this app (absolute paths)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -290,7 +291,10 @@ def preprocess_risk_data(form_data):
             scaler = pickle.load(f)
         
         # Scale the data
-        scaled_data = scaler.transform(data.reshape(1, -1))
+        model_input = data.reshape(1, -1)
+        if hasattr(scaler, 'feature_names_in_'):
+            model_input = pd.DataFrame(model_input, columns=scaler.feature_names_in_)
+        scaled_data = scaler.transform(model_input)
         return scaled_data
     except Exception as e:
         print(f"Error preprocessing risk data: {e}")
@@ -344,7 +348,10 @@ def preprocess_risk_data_chat(risk_data):
             scaler = pickle.load(f)
         
         # Scale the data
-        scaled_data = scaler.transform(data.reshape(1, -1))
+        model_input = data.reshape(1, -1)
+        if hasattr(scaler, 'feature_names_in_'):
+            model_input = pd.DataFrame(model_input, columns=scaler.feature_names_in_)
+        scaled_data = scaler.transform(model_input)
         return scaled_data
     except Exception as e:
         print(f"Error preprocessing risk data: {e}")
@@ -360,6 +367,16 @@ def home():
     except Exception as e:
         app.logger.error(f'Error rendering home page: {e}')
         raise
+
+
+@app.route('/health')
+def health():
+    """Lightweight endpoint used by the hosting platform."""
+    return {
+        'status': 'healthy',
+        'ct_model_loaded': ct_model is not None,
+        'risk_model_loaded': risk_model is not None,
+    }, 200
 
 
 @app.route('/ct-scan', methods=['GET', 'POST'])
