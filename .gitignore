@@ -179,3 +179,5 @@ Thumbs.db
 lung-cancer-ct-scan-detection-using-cnn/Data/
 lung-cancer-ct-scan-detection-using-cnn/lungcancerdataset/
 lung-cancer-ct-scan-detection-using-cnn/uploads/
+integrated_lung_cancer_system/static/uploads/*
+!integrated_lung_cancer_system/static/uploads/.gitkeep
