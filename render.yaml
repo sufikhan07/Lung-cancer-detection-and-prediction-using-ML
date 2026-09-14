@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: lung-cancer-ml-screening
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: TF_CPP_MIN_LOG_LEVEL
+        value: "2"
